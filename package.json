@@ -1,0 +1,13 @@
+{
+  "name": "wolfOnAir-back",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "serverless-offline": "^5.8.0",
+    "serverless-webpack": "^5.3.1",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.3",
+    "webpack": "^4.38.0"
+  }
+}
