@@ -61,8 +61,8 @@ plugins:
 #    - exclude-me-dir/**
 
 functions:
-  server:
-    handler: src/server.server
+  createUsers:
+    handler: src/user/
     events:
       - http:
           path: server

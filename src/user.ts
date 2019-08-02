@@ -3,7 +3,7 @@ interface ResponseType {
   body: string;
 }
 
-export async function server (event: any, context: any) {
+export function checkEmail (event: any, context: any) {
   const response: ResponseType = {
     statusCode: 200,
     body: JSON.stringify({
