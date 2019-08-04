@@ -1,16 +1,24 @@
 {
-  "name": "wolfOnAir-back",
+  "name": "wolf-on-air-back",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "serverless-offline": "^5.8.0",
-    "serverless-webpack": "^5.3.1",
+    "@types/koa": "^2.0.49",
+    "@types/koa-router": "^7.0.42",
     "ts-loader": "^6.0.4",
     "typescript": "^3.5.3",
     "webpack": "^4.38.0"
   },
   "dependencies": {
-    "graphql": "^14.4.2"
+    "graphql": "^14.4.2",
+    "koa": "^2.7.0",
+    "koa-router": "^7.4.0",
+    "serverless-http": "^2.0.2",
+    "serverless-offline": "^5.8.0",
+    "serverless-webpack": "^5.3.1"
+  },
+  "scripts": {
+    "build": "tsc src/server.ts"
   }
 }
