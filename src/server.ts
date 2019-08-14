@@ -1,19 +1,22 @@
 import Koa from 'koa';
 import serverless from 'serverless-http';
+import router from './router';
 
 const app: any = new Koa();
+
+app.use(router.routes()).use(router.allowedMethods());
 
 app.use((ctx: any) => {
   ctx.body = 'hello world';
 });
 
+// 개발 환경에서만 koa 서버 실행
 if (process.env.NODE_ENV === 'development') {
   app.listen(8080, (err: any) => {
     if (err) {
-      console.log(err);
-
       return;
     }
+
     console.log('Server is running on port 8080');
   });
 }
