@@ -1,10 +1,18 @@
 import Koa from 'koa';
 import serverless from 'serverless-http';
-import router from './router';
+import userRouter from './router/user';
 
 const app: any = new Koa();
 
-app.use(router.routes()).use(router.allowedMethods());
+// cors
+app.use((ctx) => {
+  console.log(ctx);
+  if (ctx.headers.referer && ctx.headers.referer.indexOf('localhost:3000') > -1) {
+    ctx.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  }
+});
+
+// app.use(userRouter.routes()).use(userRouter.allowedMethods());
 
 app.use((ctx: any) => {
   ctx.body = 'hello world';
