@@ -1,9 +1,8 @@
 import Router from 'koa-router';
+import user from './user';
 
 const router = new Router();
 
-router.get('/hello', (ctx) => {
-  ctx.body = "허접새끼"
-});
+router.use('/user', user.routes());
 
 export default router;

@@ -1,21 +1,27 @@
 import Koa from 'koa';
+import Router from 'koa-router';
 import serverless from 'serverless-http';
-import userRouter from './router/user';
+import api from './api';
 
 const app: any = new Koa();
+const router = new Router();
+
+// 라우터 설정
+router.use('/api', api.routes());
 
 // cors
-app.use((ctx) => {
-  console.log(ctx);
-  if (ctx.headers.referer && ctx.headers.referer.indexOf('localhost:3000') > -1) {
-    ctx.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  }
+app.use((ctx, next) => {
+  ctx.set('Access-Control-Allow-Origin', '*');
+
+  next();
 });
 
-// app.use(userRouter.routes()).use(userRouter.allowedMethods());
+app.use(router.routes()).use(router.allowedMethods());
 
-app.use((ctx: any) => {
+app.use((ctx: any, next) => {
   ctx.body = 'hello world';
+
+  next();
 });
 
 // 개발 환경에서만 koa 서버 실행
