@@ -1,9 +1,9 @@
-import mysql from 'mysql';
-import awsMysql from '../../config/awsMysql';
+import mysql from 'mysql2/promise';
+import awsMysql from '../config/awsMysql';
 
 const { host, user, password, database} = awsMysql;
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host,
   user,
   password,

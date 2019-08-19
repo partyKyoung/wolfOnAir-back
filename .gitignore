@@ -6,4 +6,4 @@ jspm_packages
 .serverless
 
 ## config 
-config
+src/config

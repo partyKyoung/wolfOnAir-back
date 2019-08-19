@@ -1,8 +1,8 @@
 import Router from 'koa-router';
 import user from './user';
 
-const router = new Router();
+const api = new Router();
 
-router.use('/user', user.routes());
+api.use('/user', user.routes());
 
-export default router;
+export default api;
