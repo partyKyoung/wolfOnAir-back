@@ -1,13 +1,17 @@
-import mysql from 'mysql2/promise';
+import mysql from 'mysql2';
 import awsMysql from '../config/awsMysql';
 
 const { host, user, password, database} = awsMysql;
 
-const db = mysql.createPool({
-  host,
-  user,
-  password,
-  database
-}); 
+const db = async () => {
+  const connection = await mysql.createConnection({
+    host, 
+    user, 
+    password, 
+    database
+  });
+  
+  return connection;
+};
 
-export default  db;
+export default db;

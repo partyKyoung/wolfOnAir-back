@@ -6,9 +6,6 @@ import api from './api';
 const app: any = new Koa();
 const router = new Router();
 
-// 라우터 설정
-router.use('/api', api.routes());
-
 // cors
 app.use((ctx, next) => {
   ctx.set('Access-Control-Allow-Origin', '*');
@@ -16,13 +13,11 @@ app.use((ctx, next) => {
   next();
 });
 
-app.use(router.routes()).use(router.allowedMethods());
+// 라우터 설정
+router.use('/api', api.routes());
 
-app.use((ctx: any, next) => {
-  ctx.body = 'hello world';
-
-  next();
-});
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 // 개발 환경에서만 koa 서버 실행
 if (process.env.NODE_ENV === 'development') {
