@@ -19,7 +19,7 @@ user.get('/email/:eamil', async (ctx, next) => {
     ctx.throw(e);
     ctx.status = 500;
   }
-  
+
 });
 
 export default user;

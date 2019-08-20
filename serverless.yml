@@ -17,8 +17,6 @@ functions:
       - http:
           path: /
           method: ANY
-          cors: true
       - http:
-          path: /{any*} # 아무 패스나 들어올 수 있도록
+          path: /{any+} # 아무 패스나 들어올 수 있도록
           method: ANY
-          cors: true
