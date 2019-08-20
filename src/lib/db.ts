@@ -1,17 +1,27 @@
-import mysql from 'mysql2';
+import mysql from 'mysql';
 import awsMysql from '../config/awsMysql';
 
 const { host, user, password, database} = awsMysql;
 
-const db = async () => {
-  const connection = await mysql.createConnection({
-    host, 
-    user, 
-    password, 
-    database
-  });
-  
-  return connection;
-};
+const db = mysql.createPool({
+  host,
+  user,
+  password,
+  database
+});
 
-export default db;
+export function querySql(queryString: string = '') {
+  if (!queryString) {
+    return;
+  }
+
+  return new Promise((resolve, reject) => {
+    db.query(queryString, (error, results, fields) => {
+      if (error) {
+        reject(error);
+      }
+
+      resolve(results);
+    });
+  });
+}
