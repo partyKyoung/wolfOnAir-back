@@ -24,6 +24,11 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"]
   },
-  plugins: [ new webpack.DefinePlugin({ "global.GENTLY": false }) ],
+  plugins: [
+    new webpack.DefinePlugin({ "global.GENTLY": false })
+  ],
   target: 'node',
+  optimization: {
+    minimize: false
+  }
 }
