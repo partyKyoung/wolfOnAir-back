@@ -38,4 +38,17 @@ user.get('/userName/:userName', async (ctx, next) => {
   }
 });
 
+user.post('/join', async (ctx) => {
+  const { body } = ctx.request;
+  const { email, password, userName } = body;
+
+  try {
+    await querySql(`INSERT INTO user(email, userName, password) VALUES('${email}', '${userName}', '${password}')`);
+
+  } catch (e) {
+    ctx.throw(e);
+    ctx.status = 500;
+  }  
+});
+
 export default user;
