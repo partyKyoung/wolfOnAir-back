@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk';
+import striptags from 'striptags';
 
 AWS.config.update({region: 'us-east-2'});
 
@@ -25,7 +26,7 @@ const sendMail = ({
         },
         Text: {
           Charset: "UTF-8",
-          Data: body
+          Data: striptags(body)
         }
       },      
       Subject: {
