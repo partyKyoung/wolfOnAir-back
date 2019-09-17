@@ -13,16 +13,16 @@ function getHash(value:string): Promise<{key: string; salt: string;}> {
 
     crypto.randomBytes(64, (err, buf) => {
       if (err) {
-        reject();
+        reject(err);
       }
 
       const salt = buf.toString('base64');
       
       crypto.pbkdf2(value, salt, 100000, 64, 'sha512', async (err, key) => {
         if (err) {
-          reject();
+          reject(err);
         }
-        
+
         hashObj.salt = salt;
         hashObj.key = key.toString('base64');
 

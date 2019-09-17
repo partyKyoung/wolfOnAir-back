@@ -17,7 +17,7 @@ function querySql(queryString: string = ''): Promise<any> {
       reject();
     }
   
-    db.query(queryString, (error, results, fields) => {
+    db.query(queryString, (error, results) => {
       if (error) {
         reject(error);
       }
