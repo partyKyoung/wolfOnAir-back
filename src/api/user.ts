@@ -1,8 +1,9 @@
 import Router from 'koa-router';
 import crypto from 'crypto';
 
-import { querySql } from '../lib/db';
- 
+import querySql from '../lib/db';
+import getHash from '../lib/crypto';
+
 const user = new Router();
 
 user.get('/email/:eamil', async (ctx, next) => {
@@ -39,23 +40,23 @@ user.get('/userName/:userName', async (ctx, next) => {
   }
 });
 
-user.post('/join', (ctx) => {
+user.post('/join', async (ctx) => {
   const { body } = ctx.request;
   const { email, password, userName } = body;
 
-  crypto.randomBytes(64, (err, buf) => {
-    const salt = buf.toString('base64');
+  try {
+    const cryptoPassword = await getHash(password);
+    const { key, salt } = cryptoPassword;
+
+    await querySql(
+      `INSERT INTO user(email, userName, password, salt) VALUES('${email}', '${userName}', '${key}', '${salt}')`
+    );
     
-    crypto.pbkdf2(password, salt, 100000, 64, 'sha512', async (err, key) => {
-      try {
-        await querySql(`INSERT INTO user(email, userName, password, salt) VALUES('${email}', '${userName}', '${key.toString('base64')}', '${salt}')`);
-    
-      } catch (e) {
-        ctx.throw(e);
-        ctx.status = 500;
-      }  
-    });
-  });
+    ctx.status = 200;
+  } catch (e) {
+    ctx.throw(e);
+    ctx.status = 500;
+  }
 });
 
 export default user;

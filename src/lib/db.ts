@@ -10,12 +10,13 @@ const db = mysql.createPool({
   database
 });
 
-export function querySql(queryString: string = '') {
-  if (!queryString) {
-    return;
-  }
+function querySql(queryString: string = ''): Promise<any> {
 
   return new Promise((resolve, reject) => {
+    if (!queryString) {
+      reject();
+    }
+  
     db.query(queryString, (error, results, fields) => {
       if (error) {
         reject(error);
@@ -25,3 +26,5 @@ export function querySql(queryString: string = '') {
     });
   });
 }
+
+export default querySql;
