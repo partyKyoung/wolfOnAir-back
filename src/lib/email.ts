@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import striptags from 'striptags';
 
-AWS.config.update({region: 'us-east-2'});
+AWS.config.update({region: 'us-east-1'});
 
 type MailTypes = {
   body: string;
