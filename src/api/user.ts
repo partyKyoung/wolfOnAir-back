@@ -50,9 +50,9 @@ user.post('/join', async (ctx) => {
     const cryptoPassword = await getHash(password);
     const { key, salt } = cryptoPassword;
 
-    // await querySql(
-    //   `INSERT INTO user(email, userName, password, salt) VALUES('${email}', '${userName}', '${key}', '${salt}')`
-    // );
+    await querySql(
+      `INSERT INTO user(email, userName, password, salt) VALUES('${email}', '${userName}', '${key}', '${salt}')`
+    );
     
     ctx.status = 200;
   } catch (e) {
@@ -65,7 +65,7 @@ user.post('/join/send-email', async (ctx) => {
   try {
     const { email } = ctx.request.body;
     const values = {
-      body: `<a href="/">test</a>`,
+      body: `<table><tbody><tr><td>회원가입을 완료 하시려면 하단의 버튼을 눌러주세요!</td<</tr><tr><td><a href="https://wolfonair.io">가입 완료</a></td></tr></tbody></table>`,
       subject: '회원가입 확인 이메일',
       to: [email]
     };
