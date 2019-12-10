@@ -65,7 +65,22 @@ user.post('/join/send-email', async (ctx) => {
   try {
     const { email } = ctx.request.body;
     const values = {
-      body: `<table><tbody><tr><td>회원가입을 완료 하시려면 하단의 버튼을 눌러주세요!</td<</tr><tr><td><a href="https://wolfonair.io">가입 완료</a></td></tr></tbody></table>`,
+      body: `
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                회원가입을 완료 하시려면 하단의 버튼을 눌러주세요!
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="localhost:3000/join-complete">가입 완료</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      `,
       subject: '회원가입 확인 이메일',
       to: [email]
     };
