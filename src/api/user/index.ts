@@ -1,8 +1,13 @@
 import Router from 'koa-router';
-import user from './user';
+import userCtrl from './user.ctrl';
 
-const api = new Router();
+const user = new Router();
 
-api.use('/user', user.routes());
+// import user from '.';
 
-export default api;
+// const api = new Router();
+
+// api.use('/user', user.routes());
+
+// export default api;
+
