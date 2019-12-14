@@ -6,7 +6,7 @@ import getHash from '../../lib/crypto';
 import sendEmail from '../../lib/email';
 
 /* 이메일 중복 확인 */
-export const checkEmail: Middleware = async (ctx) => {
+export const checkEmail: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   const { email } = ctx.params;
 
   try {
@@ -24,7 +24,7 @@ export const checkEmail: Middleware = async (ctx) => {
 };
 
 /* 닉네임 중복 확인 */
-export const checkUserName: Middleware = async (ctx) => {
+export const checkUserName: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   const { userName } = ctx.params;
 
   try {
@@ -43,7 +43,7 @@ export const checkUserName: Middleware = async (ctx) => {
 };
 
 /* 회원가입 */
-export const join: Middleware = async (ctx) => {
+export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   const { body } = ctx.request;
   const { email, password, userName } = body;
 
@@ -67,7 +67,7 @@ export const join: Middleware = async (ctx) => {
  * POST
  * @param ctx 
  */
-export const sendJoinEmail: Middleware = async (ctx) => {
+export const sendJoinEmail: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   try {
     const { email } = ctx.request.body;
     const values = {

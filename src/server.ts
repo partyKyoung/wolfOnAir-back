@@ -1,5 +1,5 @@
 import Koa from 'koa';
-import Router from 'koa-router';
+import Router from '@koa/router';
 import koaBody from 'koa-body';
 import serverless from 'serverless-http';
 import api from './api';
