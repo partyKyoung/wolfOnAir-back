@@ -1,11 +1,12 @@
-import { Context } from 'koa';
+import { ParameterizedContext } from 'koa';
+import { Middleware } from '@koa/router';
 
 import querySql from '../../lib/db';
 import getHash from '../../lib/crypto';
 import sendEmail from '../../lib/email';
 
 /* 이메일 중복 확인 */
-export const checkEmail = (ctx: Context) => {
+export const checkEmail: Middleware = async (ctx) => {
   const { email } = ctx.params;
 
   try {
@@ -23,7 +24,7 @@ export const checkEmail = (ctx: Context) => {
 };
 
 /* 닉네임 중복 확인 */
-export const checkUserName = (ctx: Context) => {
+export const checkUserName: Middleware = async (ctx) => {
   const { userName } = ctx.params;
 
   try {
@@ -42,7 +43,7 @@ export const checkUserName = (ctx: Context) => {
 };
 
 /* 회원가입 */
-export const join = (ctx: Context) => {
+export const join: Middleware = async (ctx) => {
   const { body } = ctx.request;
   const { email, password, userName } = body;
 
@@ -58,6 +59,7 @@ export const join = (ctx: Context) => {
   } catch (e) {
     ctx.throw(e);
     ctx.throw(500, e);
+  }
 };
 
 /**
@@ -65,7 +67,7 @@ export const join = (ctx: Context) => {
  * POST
  * @param ctx 
  */
-export const sendJoinEmail = async (ctx: Context) => {
+export const sendJoinEmail: Middleware = async (ctx) => {
   try {
     const { email } = ctx.request.body;
     const values = {

@@ -1,13 +1,22 @@
+import { Context } from 'koa';
 import Router from 'koa-router';
-import userCtrl from './user.ctrl';
+
+import {
+  checkEmail,
+  checkUserName,
+  join,
+  sendJoinEmail
+} from './user.ctrl';
 
 const user = new Router();
 
-// import user from '.';
+user.get('/email/:email', checkEmail);
 
-// const api = new Router();
+user.get('/userName/:userName', checkUserName);
 
-// api.use('/user', user.routes());
+user.post('/join', join);
 
-// export default api;
+user.post('/join/send-email', sendJoinEmail);
+
+export default user;
 
