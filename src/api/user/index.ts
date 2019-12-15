@@ -9,9 +9,9 @@ import {
 
 const user = new Router();
 
-user.get('/email/:email', checkEmail);
+user.get('/join/availability-email/:email', checkEmail);
 
-user.get('/userName/:userName', checkUserName);
+user.get('/join/availability-nickname/:userName', checkUserName);
 
 user.post('/join', join);
 
