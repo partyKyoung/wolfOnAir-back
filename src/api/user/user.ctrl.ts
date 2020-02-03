@@ -116,6 +116,10 @@ export const sendJoinEmail: Middleware = async (
     };
 
     await sendEmail(values);
+
+    ctx.body = {
+      success: true
+    };
   } catch (e) {
     ctx.throw(500, e);
   }

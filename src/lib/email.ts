@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk';
+import sanitize from 'sanitize-html';
 import striptags from 'striptags';
 
 AWS.config.update({region: 'us-east-1'});
@@ -26,7 +27,7 @@ const sendMail = ({
         },
         Text: {
           Charset: "UTF-8",
-          Data: striptags(body)
+          Data: sanitize(body, { allowedTags: [] })
         }
       },      
       Subject: {
