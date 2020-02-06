@@ -124,3 +124,22 @@ export const sendJoinEmail: Middleware = async (
     ctx.throw(500, e);
   }
 };
+
+
+/* 이메일 인증 완료 */
+export const updateUserEmailAuth: Middleware = async (
+  ctx: ParameterizedContext<any, any>
+) => {
+  const { email } = ctx.params;
+
+  try {
+    await querySql(
+      `update user set emailAuth = 'y' where email = ${email}`
+    );
+
+    ctx.status = 200;
+  } catch (e) {
+    ctx.status = 500;
+    ctx.throw(e);
+  }
+};

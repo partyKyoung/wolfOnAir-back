@@ -4,7 +4,8 @@ import {
   checkEmail,
   checkUserName,
   join,
-  sendJoinEmail
+  sendJoinEmail,
+  updateUserEmailAuth
 } from './user.ctrl';
 
 const user = new Router();
@@ -15,7 +16,9 @@ user.get('/join/availability-nickname/:userName', checkUserName);
 
 user.post('/join', join);
 
-user.post('/join/send-email', sendJoinEmail);
+user.post('/join/auth/send-email', sendJoinEmail);
+
+user.put('/join/auth/:email/success', updateUserEmailAuth);
 
 export default user;
 
