@@ -16,7 +16,7 @@ user.get('/join/availability-nickname/:userName', checkUserName);
 
 user.post('/join', join);
 
-user.post('/join/auth/send-email', sendJoinEmail);
+user.post('/join/auth/:email/send-email', sendJoinEmail);
 
 user.put('/join/auth/:email/success', updateUserEmailAuth);
 
