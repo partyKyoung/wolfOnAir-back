@@ -11,9 +11,14 @@ import sendEmail from "../../lib/email";
 export const sendJoinAuthHelpEmail: Middleware = async (
   ctx: ParameterizedContext<any, any>
 ) => {
-  try {
-    const { email } = ctx.request.body;
+  const { email } = ctx.request.body;
+  if (!email) {
+    ctx.status = 400;
 
+    return;
+  }
+
+  try {
     const values = {
       body: `
         <table
@@ -53,6 +58,6 @@ export const sendJoinAuthHelpEmail: Middleware = async (
 
     await sendEmail(values);
   } catch (e) {
-    ctx.throw(500, e);
+    ctx.throw(500, '문의 이메일을 전송하지 못하였습니다.');
   }
 };

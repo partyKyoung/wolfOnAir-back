@@ -11,6 +11,12 @@ export const checkEmail: Middleware = async (
 ) => {
   const { email } = ctx.params;
 
+  if (!email) {
+    ctx.status = 400;
+
+    return;
+  }
+
   try {
     const rows: any = await querySql(
       `SELECT uid FROM user WHERE email='${email}'`
@@ -21,8 +27,7 @@ export const checkEmail: Middleware = async (
     };
     ctx.status = 200;
   } catch (e) {
-    ctx.throw(e);
-    ctx.status = 500;
+    ctx.throw(500, "이메일 중복 확인에 실패하였습니다.");
   }
 };
 
@@ -31,6 +36,12 @@ export const checkUserName: Middleware = async (
   ctx: ParameterizedContext<any, any>
 ) => {
   const { userName } = ctx.params;
+
+  if (!userName) {
+    ctx.status = 400;
+
+    return;
+  }
 
   try {
     const rows: any = await querySql(
@@ -42,15 +53,20 @@ export const checkUserName: Middleware = async (
     };
     ctx.status = 200;
   } catch (e) {
-    ctx.throw(e);
-    ctx.status = 500;
+    ctx.throw(500, "닉네임 중복 확인에 실패하였습니다.");
   }
 };
 
 /* 회원가입 */
-export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
+export const join: Middleware = async (ctx: ParameterizedContext<any, any>, next) => {
   const { body } = ctx.request;
   const { email, password, userName } = body;
+
+  if (!email || !password || !userName) {
+    ctx.status = 400;
+
+    return;
+  }
 
   try {
     const cryptoPassword = await getHash(password);
@@ -61,9 +77,10 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
     );
 
     ctx.status = 200;
+
+    return next();
   } catch (e) {
-    ctx.throw(e);
-    ctx.throw(500, e);
+    ctx.throw(500, '회원가입에 실패하였습니다.');
   }
 };
 
@@ -75,8 +92,15 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
 export const sendJoinEmail: Middleware = async (
   ctx: ParameterizedContext<any, any>
 ) => {
+  const { email } = ctx.request.body;
+
+  if (!email) {
+    ctx.status = 400;
+
+    return;
+  }
+  
   try {
-    const { email } = ctx.request.body;
     const values = {
       body: `
         <table style="margin: 0 auto;">
@@ -111,20 +135,17 @@ export const sendJoinEmail: Middleware = async (
           </tbody>
         </table>
       `,
-      subject: "회원가입 확인 이메일",
+      subject: "회원가입 인증 이메일",
       to: [email]
     };
 
     await sendEmail(values);
 
-    ctx.body = {
-      success: true
-    };
+    ctx.status = 200;
   } catch (e) {
-    ctx.throw(500, e);
+    ctx.throw(500, "회원가입 인증 이메일 전송을 실패하였습니다.");
   }
 };
-
 
 /* 이메일 인증 완료 */
 export const updateUserEmailAuth: Middleware = async (
@@ -132,14 +153,17 @@ export const updateUserEmailAuth: Middleware = async (
 ) => {
   const { email } = ctx.params;
 
+  if (!email) {
+    ctx.status = 400;
+
+    return;
+  }
+  
   try {
-    await querySql(
-      `update user set emailAuth = 'y' where email = ${email}`
-    );
+    await querySql(`update user set emailAuth = 'y' where email = ${email}`);
 
     ctx.status = 200;
   } catch (e) {
-    ctx.status = 500;
-    ctx.throw(e);
+    ctx.throw(500, "이메일 인증을 실패하였습니다.");
   }
 };

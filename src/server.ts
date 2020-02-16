@@ -1,6 +1,6 @@
 import Koa from 'koa';
 import Router from '@koa/router';
-import koaBody from 'koa-body';
+import bodyParser from 'koa-bodyparser';
 import serverless from 'serverless-http';
 import api from './api';
 
@@ -12,14 +12,15 @@ router.use('/api', api.routes());
 
 // cors
 app.use(async (ctx, next) => {
-  ctx.set('Access-Control-Allow-Origin', '*');
-  // ctx.set("Access-Control-Allow-Credentials", true);
+  ctx.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  ctx.set('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE');
+  ctx.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
+  ctx.set("Access-Control-Allow-Credentials", 'true');
+
   await next();
 });
 
-app.use(koaBody({
-  multipart: true,
-}));
+app.use(bodyParser());
 app.use(router.routes()).use(router.allowedMethods());
 
 // 개발 환경에서만 koa 서버 실행
