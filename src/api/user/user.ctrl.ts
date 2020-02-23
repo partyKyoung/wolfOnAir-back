@@ -77,8 +77,6 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>, next
     );
 
     ctx.status = 200;
-
-    return next();
   } catch (e) {
     ctx.throw(500, '회원가입에 실패하였습니다.');
   }
@@ -94,6 +92,7 @@ export const sendJoinEmail: Middleware = async (
 ) => {
   const { email } = ctx.request.body;
 
+  
   if (!email) {
     ctx.status = 400;
 
@@ -122,14 +121,14 @@ export const sendJoinEmail: Middleware = async (
             <tr>
               <td style="text-align: center;">
                 <a 
-                  href="localhost:3000/join/${email}/complete" 
+                  href="http://localhost:3000/user/join/${email}/send-email/auth" 
                   target="_blank" 
                   style="display: block; width: 300px; height: 50px; margin: 0 auto; padding: 16px; border-radius: 5px; background-color: #3399ff; font-size: 17px; box-sizing: border-box; color: #FFFFFF; text-align: center; text-decoration: none;"
                 >
                   가입 완료
                 </a>
                 <br/>
-                <a href="localhost:3000/join/email/complete" target="_blank" style="color: #3399ff;">localhost:3000/join/${email}/complete</a>
+                <a href="http://localhost:3000/user/join/${email}/send-email/auth" target="_blank" style="color: #3399ff;">localhost:3000/join/${email}/complete</a>
               </td>
             </tr>
           </tbody>
@@ -151,7 +150,7 @@ export const sendJoinEmail: Middleware = async (
 export const updateUserEmailAuth: Middleware = async (
   ctx: ParameterizedContext<any, any>
 ) => {
-  const { email } = ctx.params;
+  const { email } = ctx.request.body;
 
   if (!email) {
     ctx.status = 400;
@@ -160,10 +159,33 @@ export const updateUserEmailAuth: Middleware = async (
   }
   
   try {
-    await querySql(`update user set emailAuth = 'y' where email = ${email}`);
+    const rows: any = await querySql(
+      `SELECT emailAuth FROM user WHERE email='${email}'`
+    );
+
+    if (rows.length <= 0) {
+      ctx.status = 400;
+      ctx.body = {
+        reason: '회원가입이 되지 않은 이메일 입니다.'
+      }
+
+      return;
+    }
+
+    if (rows[0].emailAuth === 'y') {
+      ctx.status = 400;
+      ctx.body = {
+        reason: "이미 인증이 완료된 이메일 입니다."
+      }
+
+      return;
+    }
+
+    await querySql(`update user set emailAuth = 'y' where email = '${email}'`);
 
     ctx.status = 200;
   } catch (e) {
+    console.log(e);
     ctx.throw(500, "이메일 인증을 실패하였습니다.");
   }
 };

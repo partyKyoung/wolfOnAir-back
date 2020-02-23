@@ -11,13 +11,13 @@ const router = new Router();
 router.use('/api', api.routes());
 
 // cors
-app.use(async (ctx, next) => {
+app.use((ctx, next) => {
   ctx.set('Access-Control-Allow-Origin', 'http://localhost:3000');
   ctx.set('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE');
   ctx.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
   ctx.set("Access-Control-Allow-Credentials", 'true');
 
-  await next();
+  return next();
 });
 
 app.use(bodyParser());
