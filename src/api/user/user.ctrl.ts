@@ -27,7 +27,7 @@ export const checkEmail: Middleware = async (
     };
     ctx.status = 200;
   } catch (e) {
-    ctx.throw(500, "이메일 중복 확인에 실패하였습니다.");
+    ctx.status = 500;
   }
 };
 
@@ -53,14 +53,13 @@ export const checkUserName: Middleware = async (
     };
     ctx.status = 200;
   } catch (e) {
-    ctx.throw(500, "닉네임 중복 확인에 실패하였습니다.");
+    ctx.status = 500;
   }
 };
 
 /* 회원가입 */
-export const join: Middleware = async (ctx: ParameterizedContext<any, any>, next) => {
-  const { body } = ctx.request;
-  const { email, password, userName } = body;
+export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
+  const { email, password, userName } = ctx.request.body;
 
   if (!email || !password || !userName) {
     ctx.status = 400;
@@ -77,8 +76,8 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>, next
     );
 
     ctx.status = 200;
-  } catch (e) {
-    ctx.throw(500, '회원가입에 실패하였습니다.');
+  } catch (err) {
+    ctx.status = 500;
   }
 };
 
@@ -141,8 +140,8 @@ export const sendJoinEmail: Middleware = async (
     await sendEmail(values);
 
     ctx.status = 200;
-  } catch (e) {
-    ctx.throw(500, "회원가입 인증 이메일 전송을 실패하였습니다.");
+  } catch (err) {
+    ctx.status = 500;
   }
 };
 
@@ -181,11 +180,43 @@ export const updateUserEmailAuth: Middleware = async (
       return;
     }
 
-    await querySql(`update user set emailAuth = 'y' where email = '${email}'`);
+    await querySql(`UPDATE user SET emailAuth = 'y' WHERE email = '${email}'`);
 
     ctx.status = 200;
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
     ctx.throw(500, "이메일 인증을 실패하였습니다.");
   }
 };
+
+/* 로그인 */
+export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => {
+  const { email, password } = ctx.request.body;
+
+  if (!email || !password) {
+    ctx.status = 400;
+    ctx.body = {
+      reason: '필수값이 누락되었습니다.'
+    };
+
+    return;
+  }
+
+  try {
+    const rows: any = await querySql(
+      `SELECT emailAuth FROM user WHERE email='${email}'`
+    );
+
+    if (rows.length <= 0) {
+      ctx.status = 401;
+      ctx.body = {
+        reason: '가입하지 않은 아이디이거나 잘못된 비밀번호입니다.'
+      }
+
+      return;
+    }
+
+
+  } catch (err) {
+    ctx.status = 500;
+  }
+}
