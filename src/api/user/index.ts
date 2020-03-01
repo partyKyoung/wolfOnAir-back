@@ -4,6 +4,7 @@ import {
   checkEmail,
   checkUserName,
   join,
+  login,
   sendJoinEmail,
   updateUserEmailAuth
 } from './user.ctrl';
@@ -19,6 +20,8 @@ user.post('/join', join);
 user.post('/join/auth', sendJoinEmail);
 
 user.put('/join/auth', updateUserEmailAuth);
+
+user.post('/login', login);
 
 export default user;
 

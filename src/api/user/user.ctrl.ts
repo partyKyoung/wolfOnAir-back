@@ -2,7 +2,7 @@ import { ParameterizedContext } from "koa";
 import { Middleware } from "@koa/router";
 
 import querySql from "../../lib/db";
-import getHash from "../../lib/crypto";
+import { getHash, checkHash } from "../../lib/crypto";
 import sendEmail from "../../lib/email";
 
 /* 이메일 중복 확인 */
@@ -69,10 +69,10 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
 
   try {
     const cryptoPassword = await getHash(password);
-    const { key, salt } = cryptoPassword;
+    const { hash, salt } = cryptoPassword;
 
     await querySql(
-      `INSERT INTO user(email, userName, password, salt) VALUES('${email}', '${userName}', '${key}', '${salt}')`
+      `INSERT INTO user(email, userName, password, salt) VALUES('${email}', '${userName}', '${hash}', '${salt}')`
     );
 
     ctx.status = 200;
@@ -203,7 +203,7 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
 
   try {
     const rows: any = await querySql(
-      `SELECT emailAuth FROM user WHERE email='${email}'`
+      `SELECT emailAuth, password, salt FROM user WHERE email='${email}'`
     );
 
     if (rows.length <= 0) {
@@ -215,7 +215,29 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
       return;
     }
 
+    const { emailAuth, password: hash, salt } = rows[0];
 
+    const isVerifyHash = await checkHash(password, salt, hash);
+
+    if (!isVerifyHash) {
+      ctx.status = 401;
+      ctx.body = {
+        reason: '가입하지 않은 아이디이거나 잘못된 비밀번호입니다.'
+      }
+
+      return;      
+    }
+
+    if (emailAuth === 'n') {
+      ctx.status = 401;
+      ctx.body = {
+        reason: '인증을 받지 않은 계정입니다. 이메일 인증을 먼저 완료해주세요.'
+      }
+
+      return;         
+    }
+
+    ctx.status = 200;
   } catch (err) {
     ctx.status = 500;
   }

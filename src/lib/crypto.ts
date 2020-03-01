@@ -1,35 +1,40 @@
 import crypto from 'crypto';
 
-function getHash(value:string): Promise<{key: string; salt: string;}> {
-  const hashObj = {
-    key: '',
-    salt: ''
-  }
-
+function cryptSalt(value: string, salt: string): Promise<{hash: string; salt: string}> {
   return new Promise((resolve, reject) => {
-    if (!value) {
-      reject();
-    }
-
-    crypto.randomBytes(64, (err, buf) => {
+    crypto.pbkdf2(value, salt, 1000, 64, 'sha512', (err: Error | null, key: Buffer) => {
       if (err) {
         reject(err);
+        
+        return;
       }
 
-      const salt = buf.toString('base64');
-      
-      crypto.pbkdf2(value, salt, 100000, 64, 'sha512', async (err, key) => {
-        if (err) {
-          reject(err);
-        }
-
-        hashObj.salt = salt;
-        hashObj.key = key.toString('base64');
-
-        resolve(hashObj);
+      resolve({
+        salt,
+        hash: key.toString('base64')
       });
     });
   });
+}
+
+export async function getHash(value:string): Promise<{hash: string; salt: string;}> {
+  const salt = crypto.randomBytes(64).toString();
+
+  try {
+    const hashObj = await cryptSalt(value, salt);
+
+    return hashObj;
+  } catch (err) {
+    throw new Error(err);
+  }  
 };
 
-export default getHash;
+export async function checkHash(value: string, salt: string, verifyHash: string): Promise<boolean> {
+  try {
+    const hashObj = await cryptSalt(value, salt);
+
+    return hashObj.hash === verifyHash;
+  } catch (err) {
+    throw new Error(err);
+  }  
+}
