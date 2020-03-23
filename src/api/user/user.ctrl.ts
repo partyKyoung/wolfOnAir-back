@@ -1,5 +1,6 @@
 import { ParameterizedContext } from "koa";
 import { Middleware } from "@koa/router";
+import jwt from 'jsonwebtoken';
 
 import querySql from "../../lib/db";
 import { getHash, checkHash } from "../../lib/crypto";
@@ -215,7 +216,7 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
       return;
     }
 
-    const { emailAuth, password: hash, salt } = rows[0];
+    const { emailAuth, password: hash, salt, userName } = rows[0];
 
     const isVerifyHash = await checkHash(password, salt, hash);
 
