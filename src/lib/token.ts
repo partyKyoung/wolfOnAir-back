@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { Context } from 'koa';
 
 export const generateToken = (uid: number, userName: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -34,3 +35,7 @@ export const decodeToken = (token: string) => {
     })
   });
 };
+
+export const setCookie = (ctx: Context, token: string) => {
+  ctx.cookies.set('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 });
+}
