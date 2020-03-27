@@ -36,6 +36,10 @@ export const decodeToken = (token: string) => {
   });
 };
 
-export const setCookie = (ctx: Context, token: string) => {
-  ctx.cookies.set('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 });
+export const setCookie = (ctx: Context, tokens: {
+  accessToken: string,
+  refreshToken: string
+}) => {
+  ctx.cookies.set('access_token', tokens.accessToken, { httpOnly: true, maxAge: 1000 * 60 * 60 });
+  ctx.cookies.set('refresh_token', tokens.refreshToken, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 });
 }

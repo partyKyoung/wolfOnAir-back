@@ -4,7 +4,7 @@ import { Middleware } from "@koa/router";
 import querySql from "../../lib/db";
 import sendEmail from "../../lib/email";
 import { getHash, checkHash } from "../../lib/crypto";
-import { getJWT } from '../../lib/token';
+import { generateToken } from '../../lib/token';
 
 /* 이메일 중복 확인 */
 export const checkEmail: Middleware = async (
@@ -238,7 +238,7 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
       return;         
     }
 
-    const token = await getJWT(uid, userName);
+    const token = await generateToken(uid, userName);
 
     ctx.status = 200;
     ctx.body = {
