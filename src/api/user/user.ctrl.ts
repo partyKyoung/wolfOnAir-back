@@ -4,7 +4,7 @@ import { Middleware } from "@koa/router";
 import querySql from "../../lib/db";
 import sendEmail from "../../lib/email";
 import { getHash, checkHash } from "../../lib/crypto";
-import { generateToken } from '../../lib/token';
+import { generateToken, setCookie } from '../../lib/token';
 
 /* 이메일 중복 확인 */
 export const checkEmail: Middleware = async (
@@ -204,7 +204,7 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
 
   try {
     const rows: any = await querySql(
-      `SELECT emailAuth, password, salt FROM user WHERE email='${email}'`
+      `SELECT * FROM user WHERE email='${email}'`
     );
 
     if (rows.length <= 0) {
@@ -239,6 +239,8 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
     }
 
     const token = await generateToken(uid, userName);
+
+    setCookie(ctx, token);
 
     ctx.status = 200;
     ctx.body = {
