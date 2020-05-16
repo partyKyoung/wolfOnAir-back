@@ -244,7 +244,9 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
 
     ctx.status = 200;
     ctx.body = {
-      token
+      token,
+      uid,
+      userName
     };
   } catch (err) {
     ctx.status = 500;
