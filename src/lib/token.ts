@@ -38,6 +38,16 @@ export const decodeToken = (token: string) => {
   });
 };
 
-export const setCookie = (ctx: Context, token: string) => {
+export const setAccessTokenCookie = (ctx: Context, token: string) => {
   ctx.cookies.set('access_token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 });
+}
+
+export const getAccessTokenCookie = (ctx: Context): string => {
+  const token = ctx.cookies.get('access_token');
+
+  if (!token) {
+    return '';
+  }
+
+  return token
 }

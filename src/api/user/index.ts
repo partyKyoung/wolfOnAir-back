@@ -6,7 +6,8 @@ import {
   join,
   login,
   sendJoinEmail,
-  updateUserEmailAuth
+  updateUserEmailAuth,
+  checkStatus
 } from './user.ctrl';
 
 const user = new Router();
@@ -22,6 +23,8 @@ user.post('/join/auth', sendJoinEmail);
 user.put('/join/auth', updateUserEmailAuth);
 
 user.post('/login', login);
+
+user.get('/check-status', checkStatus);
 
 export default user;
 

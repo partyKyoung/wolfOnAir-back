@@ -1,10 +1,10 @@
-import { ParameterizedContext } from "koa";
+import { Context, ParameterizedContext } from "koa";
 import { Middleware } from "@koa/router";
 
 import querySql from "../../lib/db";
 import sendEmail from "../../lib/email";
 import { getHash, checkHash } from "../../lib/crypto";
-import { generateToken, setCookie } from '../../lib/token';
+import { generateToken, decodeToken, getAccessTokenCookie, setAccessTokenCookie } from '../../lib/token';
 
 /* 이메일 중복 확인 */
 export const checkEmail: Middleware = async (
@@ -240,7 +240,7 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
 
     const token = await generateToken(uid, userName);
 
-    setCookie(ctx, token);
+    setAccessTokenCookie(ctx, token);
 
     ctx.status = 200;
     ctx.body = {
@@ -249,6 +249,31 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
       userName
     };
   } catch (err) {
+    ctx.status = 500;
+  }
+}
+
+/* 쿠키 체크 */
+export const checkStatus: Middleware = async (ctx: ParameterizedContext<any, any>) => {
+  const token = getAccessTokenCookie(ctx);
+
+  // 토큰이 없으면 다음 작업을 진행한다.
+  if (!token) {
+    ctx.status = 401;
+    
+    return;         
+  }
+
+  try {
+    const decoded: any = await decodeToken(token);
+
+    ctx.status = 200;
+    ctx.body = {
+      uid: decoded.id,
+      userName: decoded.userName
+    }
+
+   } catch (err) {
     ctx.status = 500;
   }
 }
