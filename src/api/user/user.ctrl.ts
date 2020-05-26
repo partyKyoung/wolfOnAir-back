@@ -253,6 +253,12 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
   }
 }
 
+/* 로그아웃 */
+export const logout: Middleware = (ctx: ParameterizedContext<any, any>) => {
+  ctx.cookies.set('access_token', '');
+  ctx.status = 204;
+}
+
 /* 쿠키 체크 */
 export const checkStatus: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   const token = getAccessTokenCookie(ctx);
