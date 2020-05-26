@@ -5,6 +5,7 @@ import {
   checkUserName,
   join,
   login,
+  logout,
   sendJoinEmail,
   updateUserEmailAuth,
   checkStatus
@@ -23,6 +24,8 @@ user.post('/join/auth', sendJoinEmail);
 user.put('/join/auth', updateUserEmailAuth);
 
 user.post('/login', login);
+
+user.post('/logout', logout);
 
 user.get('/check-status', checkStatus);
 
