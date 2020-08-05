@@ -4,7 +4,7 @@ provider:
   name: aws
   runtime: nodejs10.x
   region: ap-northeast-2
-  state: dev
+  stage: ${opt:stage, 'dev'} # -s 옵션을 받으면 사용하고, 그렇지 않으면 기본 dev 스테이지 사용
 
 plugins:
   - serverless-webpack
