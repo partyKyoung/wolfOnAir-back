@@ -12,7 +12,7 @@ router.use('/api', api.routes());
 
 // cors
 app.use((ctx, next) => {
-  ctx.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  ctx.set('Access-Control-Allow-Origin', ['http://localhost:3000', 'http://http://wolfonair-front.s3-website.ap-northeast-2.amazonaws.com/']);
   ctx.set('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE');
   ctx.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
   ctx.set("Access-Control-Allow-Credentials", 'true');
