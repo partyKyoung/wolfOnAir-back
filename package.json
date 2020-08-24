@@ -13,6 +13,7 @@
     "@types/sanitize-html": "^1.20.2",
     "@types/striptags": "^3.1.1",
     "babel-loader": "^8.0.6",
+    "serverless-dotenv-plugin": "^3.0.0",
     "ts-loader": "^6.2.1",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.3",
@@ -38,8 +39,8 @@
   },
   "scripts": {
     "dev": "NODE_PATH=src NODE_ENV=development nodemon",
-    "deploy:dev": "sls deploy --stage dev",
-    "deploy:prod": "sls deploy --stage prod",
+    "deploy:dev": "sls deploy --stage development",
+    "deploy:prod": "sls deploy --stage production",
     "offline": "sls offline start --port 8080"
   }
 }
