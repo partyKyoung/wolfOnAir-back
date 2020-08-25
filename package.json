@@ -39,8 +39,8 @@
   },
   "scripts": {
     "dev": "NODE_PATH=src NODE_ENV=development nodemon",
-    "deploy:dev": "sls deploy --stage development",
-    "deploy:prod": "sls deploy --stage production",
+    "deploy:dev": "sls deploy --stage dev",
+    "deploy:prod": "sls deploy --stage prod",
     "offline": "sls offline start --port 8080"
   }
 }

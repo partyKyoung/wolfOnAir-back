@@ -6,8 +6,8 @@ jspm_packages
 .serverless
 
 ## env
-.env.development
-.env.production
+.env.dev
+.env.prod
 
 ## config 
 src/config
