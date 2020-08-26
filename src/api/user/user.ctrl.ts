@@ -121,14 +121,14 @@ export const sendJoinEmail: Middleware = async (
             <tr>
               <td style="text-align: center;">
                 <a 
-                  href="http://localhost:3000/user/join/${email}/send-email/auth" 
+                  href="${process.env.FRONT_URL}/user/join/${email}/send-email/auth" 
                   target="_blank" 
                   style="display: block; width: 300px; height: 50px; margin: 0 auto; padding: 16px; border-radius: 5px; background-color: #3399ff; font-size: 17px; box-sizing: border-box; color: #FFFFFF; text-align: center; text-decoration: none;"
                 >
                   가입 완료
                 </a>
                 <br/>
-                <a href="http://localhost:3000/user/join/${email}/send-email/auth" target="_blank" style="color: #3399ff;">localhost:3000/join/${email}/complete</a>
+                <a href="${process.env.FRONT_URL}/user/join/${email}/send-email/auth" target="_blank" style="color: #3399ff;">localhost:3000/join/${email}/complete</a>
               </td>
             </tr>
           </tbody>
