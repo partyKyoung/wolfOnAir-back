@@ -10,6 +10,17 @@ plugins:
   - serverless-webpack
   - serverless-offline
   - serverless-dotenv-plugin
+  - serverless-domain-manager
+
+custom:
+  customDomain:
+    domainName: api.wolfonair.com
+    stage: ${self:provider.stage}
+    certificateName: "*.wolfonair.com"
+    createRoute53Record: true
+    endpointType: regional
+    securityPolicy: tls_1_2
+    apiType: rest
 
 functions:
   api:
