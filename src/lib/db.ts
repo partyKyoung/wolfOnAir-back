@@ -10,14 +10,14 @@ const db = mysql.createPool({
   database
 });
 
-function querySql(queryString: string = ''): Promise<any> {
+function querySql(queryString: string = '', queryValues: string[] =[]): Promise<any> {
 
   return new Promise((resolve, reject) => {
     if (!queryString) {
       reject();
     }
   
-    db.query(queryString, (error, results) => {
+    db.query(queryString, queryValues, (error, results) => {
       if (error) {
         reject(error);
       }

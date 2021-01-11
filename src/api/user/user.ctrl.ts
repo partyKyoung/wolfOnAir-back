@@ -19,15 +19,14 @@ export const checkEmail: Middleware = async (
   }
 
   try {
-    const rows: any = await querySql(
-      `SELECT uid FROM user WHERE email='${email}'`
-    );
+    const rows: any = await querySql(`SELECT uid FROM user WHERE email= ?`, [email]);
 
     ctx.body = {
       isOk: rows.length <= 0
     };
     ctx.status = 200;
-  } catch (e) {
+  } catch (err) {
+    console.log(err);
     ctx.status = 500;
   }
 };
@@ -45,9 +44,7 @@ export const checkUserName: Middleware = async (
   }
 
   try {
-    const rows: any = await querySql(
-      `SELECT uid FROM user WHERE userName='${userName}'`
-    );
+    const rows: any = await querySql('SELECT uid FROM user WHERE userName=?', [userName]);
 
     ctx.body = {
       isOk: rows.length <= 0
@@ -64,6 +61,9 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
 
   if (!email || !password || !userName) {
     ctx.status = 400;
+    ctx.body = {
+      reason: '필수값이 누락되었습니다.'
+    };
 
     return;
   }
@@ -71,14 +71,17 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   try {
     const cryptoPassword = await getHash(password);
     const { hash, salt } = cryptoPassword;
-
-    await querySql(
-      `INSERT INTO user(email, userName, password, salt) VALUES('${email}', '${userName}', '${hash}', '${salt}')`
-    );
+    
+    await querySql(`INSERT INTO USER (email, password, salt, userName) VALUES(?, ?, ? ,?)`, [email, hash, salt, userName]);
 
     ctx.status = 200;
   } catch (err) {
+    console.log(err);
+
     ctx.status = 500;
+    ctx.body = {
+      reason: '오류가 발생하여 회원가입에 실패하였습니다'
+    };
   }
 };
 
@@ -91,7 +94,6 @@ export const sendJoinEmail: Middleware = async (
   ctx: ParameterizedContext<any, any>
 ) => {
   const { email } = ctx.request.body;
-
   
   if (!email) {
     ctx.status = 400;
@@ -142,6 +144,7 @@ export const sendJoinEmail: Middleware = async (
 
     ctx.status = 200;
   } catch (err) {
+    console.log(err);
     ctx.status = 500;
   }
 };
@@ -154,6 +157,9 @@ export const updateUserEmailAuth: Middleware = async (
 
   if (!email) {
     ctx.status = 400;
+    ctx.body = {
+      message: "회원가입에 필요한 필수값이 없습니다."
+    }
 
     return;
   }
@@ -172,16 +178,16 @@ export const updateUserEmailAuth: Middleware = async (
       return;
     }
 
-    if (rows[0].emailAuth === 'y') {
+    if (rows[0].emailAuth === 1) {
       ctx.status = 400;
       ctx.body = {
-        reason: "이미 인증이 완료된 이메일 입니다."
+        message: "이미 인증이 완료된 이메일 입니다."
       }
 
       return;
     }
 
-    await querySql(`UPDATE user SET emailAuth = 'y' WHERE email = '${email}'`);
+    await querySql(`UPDATE user SET emailAuth = 1 WHERE email = '${email}'`);
 
     ctx.status = 200;
   } catch (err) {
