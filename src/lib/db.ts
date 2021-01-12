@@ -1,7 +1,7 @@
 import mysql from 'mysql';
-import awsMysql from '../config/awsMysql';
+import { awsMySql } from '../config/aws';
 
-const { host, user, password, database } = awsMysql;
+const { host, user, password, database } = awsMySql;
 
 const db = mysql.createPool({
   host,

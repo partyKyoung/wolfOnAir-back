@@ -1,8 +1,13 @@
 import AWS from 'aws-sdk';
 import sanitize from 'sanitize-html';
-import striptags from 'striptags';
 
-AWS.config.update({region: 'us-east-1'});
+import { awsSES } from '../config/aws';
+
+AWS.config.update({
+  accessKeyId: awsSES.accessKeyId,
+  secretAccessKey: awsSES.secretAccessKey,
+  region: 'us-east-1'
+});
 
 type MailTypes = {
   body: string;
