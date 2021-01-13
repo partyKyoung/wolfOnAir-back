@@ -2,6 +2,9 @@ import Koa from 'koa';
 import Router from '@koa/router';
 import bodyParser from 'koa-bodyparser';
 import serverless from 'serverless-http';
+import dotenv from 'dotenv';
+import path from 'path';
+
 import api from './api';
 
 const app = new Koa();
@@ -27,6 +30,10 @@ app.use(router.routes()).use(router.allowedMethods());
 
 // 개발 환경에서만 koa 서버 실행
 if (process.env.NODE_ENV === 'development') {
+  dotenv.config({
+    path: path.resolve(process.cwd(), '.env.dev')
+  });
+
   app.listen(8080);
 }
 

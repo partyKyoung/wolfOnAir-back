@@ -40,7 +40,7 @@
     "serverless-webpack": "^5.3.1"
   },
   "scripts": {
-    "dev": "NODE_PATH=src NODE_ENV=development nodemon",
+    "dev": "NODE_PATH=src NODE_ENV=development ENV=development nodemon",
     "deploy:dev": "sls deploy --stage dev",
     "deploy:prod": "sls deploy --stage prod",
     "offline": "sls offline start --port 8080"

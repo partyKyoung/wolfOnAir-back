@@ -1,10 +1,14 @@
 import { Context, ParameterizedContext } from "koa";
 import { Middleware } from "@koa/router";
+import dotenv from 'dotenv';
+import path from 'path';
 
 import querySql from "../../lib/db";
 import sendEmail from "../../lib/email";
 import { getHash, checkHash } from "../../lib/crypto";
 import { generateToken, decodeToken, getAccessTokenCookie, setAccessTokenCookie } from '../../lib/token';
+
+import { randomString } from '../../utils/commons';
 
 /* 이메일 중복 확인 */
 export const checkEmail: Middleware = async (
@@ -72,12 +76,10 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
     const cryptoPassword = await getHash(password);
     const { hash, salt } = cryptoPassword;
     
-    await querySql(`INSERT INTO USER (email, password, salt, userName) VALUES(?, ?, ? ,?)`, [email, hash, salt, userName]);
-
+    await querySql(`INSERT INTO user (email, password, salt, userName) VALUES(?, ?, ? ,?)`, [email, hash, salt, userName]);
+    
     ctx.status = 200;
   } catch (err) {
-    console.log(err);
-
     ctx.status = 500;
     ctx.body = {
       reason: '오류가 발생하여 회원가입에 실패하였습니다'
@@ -102,6 +104,25 @@ export const sendJoinEmail: Middleware = async (
   }
   
   try {
+    const userRows = await querySql(`SELECT uid FROM user WHERE email= ?`, [email]);
+    const uid = userRows[0].uid;
+    const code = randomString(5);
+    const updatedDate = new Date();
+  
+    if (userRows.length <= 0) {
+      ctx.status = 400;
+
+      return;
+    }
+
+    const userAuthRows = await querySql(`SELECT uid FROM userAuth WHERE uid= ?`, [uid]);
+
+    if (userAuthRows.length > 0) {
+      await querySql(`UPDATE user SET code = ?, updatedDate = ? WHERE uid = ?`, [code, updatedDate.toISOString(), uid]);
+    } else {
+      await querySql(`INSERT INTO userAuth (uid, code, updatedDate) VALUES(?, ?, ?, ?)`, [uid, code, updatedDate.toISOString()]);
+    }
+
     const values = {
       body: `
         <table style="margin: 0 auto;">
@@ -123,14 +144,14 @@ export const sendJoinEmail: Middleware = async (
             <tr>
               <td style="text-align: center;">
                 <a 
-                  href="${process.env.FRONT_URL}/user/join/${email}/send-email/auth" 
+                  href="${process.env.FRONT_URL}/user/join/${email}/send-email/auth?code=${code}" 
                   target="_blank" 
                   style="display: block; width: 300px; height: 50px; margin: 0 auto; padding: 16px; border-radius: 5px; background-color: #3399ff; font-size: 17px; box-sizing: border-box; color: #FFFFFF; text-align: center; text-decoration: none;"
                 >
                   가입 완료
                 </a>
                 <br/>
-                <a href="${process.env.FRONT_URL}/user/join/${email}/send-email/auth" target="_blank" style="color: #3399ff;">localhost:3000/join/${email}/complete</a>
+                <a href="${process.env.FRONT_URL}/user/join/${email}/send-email/auth?code=${code}" target="_blank" style="color: #3399ff;">${process.env.FRONT_URL}/user/join/${email}/send-email/auth?code=${code}</a>
               </td>
             </tr>
           </tbody>
@@ -144,7 +165,6 @@ export const sendJoinEmail: Middleware = async (
 
     ctx.status = 200;
   } catch (err) {
-    console.log(err);
     ctx.status = 500;
   }
 };
