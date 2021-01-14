@@ -62,6 +62,7 @@ export const checkUserName: Middleware = async (
 /* 회원가입 */
 export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   const { email, password, userName } = ctx.request.body;
+  const createdDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
   if (!email || !password || !userName) {
     ctx.status = 400;
@@ -76,10 +77,11 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
     const cryptoPassword = await getHash(password);
     const { hash, salt } = cryptoPassword;
     
-    await querySql(`INSERT INTO user (email, password, salt, userName) VALUES(?, ?, ? ,?)`, [email, hash, salt, userName]);
+    await querySql(`INSERT INTO user (email, password, salt, userName, createdDate) VALUES(?, ?, ? ,?, ?)`, [email, hash, salt, userName, createdDate]);
     
     ctx.status = 200;
   } catch (err) {
+    console.log(err);
     ctx.status = 500;
     ctx.body = {
       reason: '오류가 발생하여 회원가입에 실패하였습니다'
@@ -96,7 +98,7 @@ export const sendJoinEmail: Middleware = async (
   ctx: ParameterizedContext<any, any>
 ) => {
   const { email } = ctx.request.body;
-  
+
   if (!email) {
     ctx.status = 400;
 
@@ -107,7 +109,7 @@ export const sendJoinEmail: Middleware = async (
     const userRows = await querySql(`SELECT uid FROM user WHERE email= ?`, [email]);
     const uid = userRows[0].uid;
     const code = randomString(5);
-    const updatedDate = new Date();
+    const updatedDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
   
     if (userRows.length <= 0) {
       ctx.status = 400;
@@ -118,9 +120,9 @@ export const sendJoinEmail: Middleware = async (
     const userAuthRows = await querySql(`SELECT uid FROM userAuth WHERE uid= ?`, [uid]);
 
     if (userAuthRows.length > 0) {
-      await querySql(`UPDATE user SET code = ?, updatedDate = ? WHERE uid = ?`, [code, updatedDate.toISOString(), uid]);
+      await querySql(`UPDATE user SET code = ?, updatedDate = ? WHERE uid = ?`, [code, updatedDate, uid]);
     } else {
-      await querySql(`INSERT INTO userAuth (uid, code, updatedDate) VALUES(?, ?, ?, ?)`, [uid, code, updatedDate.toISOString()]);
+      await querySql(`INSERT INTO userAuth (uid, code, updatedDate) VALUES(?, ?, ?)`, [uid, code, updatedDate]);
     }
 
     const values = {
@@ -173,7 +175,7 @@ export const sendJoinEmail: Middleware = async (
 export const updateUserEmailAuth: Middleware = async (
   ctx: ParameterizedContext<any, any>
 ) => {
-  const { email } = ctx.request.body;
+  const { code, email } = ctx.request.body;
 
   if (!email) {
     ctx.status = 400;
@@ -186,19 +188,19 @@ export const updateUserEmailAuth: Middleware = async (
   
   try {
     const rows: any = await querySql(
-      `SELECT emailAuth FROM user WHERE email='${email}'`
+      `SELECT uid, code, auth FROM userAuth WHERE uid = (SELECT uid from user WHERE email = ?)`, [email]
     );
 
     if (rows.length <= 0) {
       ctx.status = 400;
       ctx.body = {
-        reason: '회원가입이 되지 않은 이메일 입니다.'
+        message: '회원가입이 되지 않은 이메일 입니다.'
       }
 
       return;
     }
 
-    if (rows[0].emailAuth === 1) {
+    if (rows[0].auth === 1) {
       ctx.status = 400;
       ctx.body = {
         message: "이미 인증이 완료된 이메일 입니다."
@@ -207,11 +209,24 @@ export const updateUserEmailAuth: Middleware = async (
       return;
     }
 
-    await querySql(`UPDATE user SET emailAuth = 1 WHERE email = '${email}'`);
+    if (rows[0].code !== code) {
+      ctx.status = 400;
+      ctx.body = {
+        message: "인증코드가 올바르지 않아 이메일 인증에 실패하였습니다."
+      }
+
+      return;
+    }
+
+    await querySql('UPDATE userAuth SET auth = ? WHERE uid = ?', [true, rows[0].uid]);
 
     ctx.status = 200;
   } catch (err) {
-    ctx.throw(500, "이메일 인증을 실패하였습니다.");
+    console.log(err);
+    ctx.status = 500;
+    ctx.body = {
+      reason: '이메일 인증에 실패하였습니다.'
+    }
   }
 };
 
