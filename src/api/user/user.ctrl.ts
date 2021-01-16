@@ -1,7 +1,5 @@
 import { Context, ParameterizedContext } from "koa";
 import { Middleware } from "@koa/router";
-import dotenv from 'dotenv';
-import path from 'path';
 
 import querySql from "../../lib/db";
 import sendEmail from "../../lib/email";
@@ -18,6 +16,9 @@ export const checkEmail: Middleware = async (
 
   if (!email) {
     ctx.status = 400;
+    ctx.body = {
+      reason: '이메일을 확인할 수 없습니다.'
+    }
 
     return;
   }
@@ -30,8 +31,10 @@ export const checkEmail: Middleware = async (
     };
     ctx.status = 200;
   } catch (err) {
-    console.log(err);
     ctx.status = 500;
+    ctx.body = {
+      reason: '오류가 발생하여 이메일 중복체크에 실패하였습니다.'
+    };
   }
 };
 
@@ -43,6 +46,9 @@ export const checkUserName: Middleware = async (
 
   if (!userName) {
     ctx.status = 400;
+    ctx.body = {
+      reason: '닉네임을 확인할 수 없습니다.'
+    }
 
     return;
   }
@@ -56,7 +62,9 @@ export const checkUserName: Middleware = async (
     ctx.status = 200;
   } catch (e) {
     ctx.status = 500;
-  }
+    ctx.body = {
+      reason: '오류가 발생하여 닉네임 중복체크에 실패하였습니다.'
+    };  }
 };
 
 /* 회원가입 */
@@ -67,7 +75,7 @@ export const join: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   if (!email || !password || !userName) {
     ctx.status = 400;
     ctx.body = {
-      reason: '필수값이 누락되었습니다.'
+      reason: '회원가입에 필요한 값들이 누락되어 회원가입을 할 수 없습니다.'
     };
 
     return;
@@ -101,23 +109,29 @@ export const sendJoinEmail: Middleware = async (
 
   if (!email) {
     ctx.status = 400;
+    ctx.body = {
+      reason: '이메일을 확인할 수 없습니다.'
+    }
 
     return;
   }
   
   try {
     const userRows = await querySql(`SELECT uid FROM user WHERE email= ?`, [email]);
-    const uid = userRows[0].uid;
-    const code = randomString(5);
-    const updatedDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
   
     if (userRows.length <= 0) {
       ctx.status = 400;
+      ctx.body = {
+        reason: '회원가입이 되지 않은 이메일입니다. 회원가입을 먼저 진행해주세요.'
+      }
 
       return;
     }
 
+    const uid = userRows[0].uid;
     const userAuthRows = await querySql(`SELECT uid FROM userAuth WHERE uid= ?`, [uid]);
+    const updatedDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const code = randomString(5);
 
     if (userAuthRows.length > 0) {
       await querySql(`UPDATE user SET code = ?, updatedDate = ? WHERE uid = ?`, [code, updatedDate, uid]);
@@ -168,6 +182,9 @@ export const sendJoinEmail: Middleware = async (
     ctx.status = 200;
   } catch (err) {
     ctx.status = 500;
+    ctx.body = {
+      reason: '회원가입 인증 이메일 발송에 실패하였습니다.'
+    }
   }
 };
 
@@ -180,7 +197,7 @@ export const updateUserEmailAuth: Middleware = async (
   if (!email) {
     ctx.status = 400;
     ctx.body = {
-      message: "회원가입에 필요한 필수값이 없습니다."
+      reason: "이메일을 확인할 수 없습니다."
     }
 
     return;
@@ -194,7 +211,7 @@ export const updateUserEmailAuth: Middleware = async (
     if (rows.length <= 0) {
       ctx.status = 400;
       ctx.body = {
-        message: '회원가입이 되지 않은 이메일 입니다.'
+        reason: '회원가입이 되지 않은 이메일 입니다.'
       }
 
       return;
@@ -203,7 +220,7 @@ export const updateUserEmailAuth: Middleware = async (
     if (rows[0].auth === 1) {
       ctx.status = 400;
       ctx.body = {
-        message: "이미 인증이 완료된 이메일 입니다."
+        reason: "이미 인증이 완료된 이메일 입니다."
       }
 
       return;
@@ -212,7 +229,7 @@ export const updateUserEmailAuth: Middleware = async (
     if (rows[0].code !== code) {
       ctx.status = 400;
       ctx.body = {
-        message: "인증코드가 올바르지 않아 이메일 인증에 실패하였습니다."
+        reason: "인증코드가 올바르지 않아 이메일 인증에 실패하였습니다."
       }
 
       return;
@@ -237,19 +254,19 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
   if (!email || !password) {
     ctx.status = 400;
     ctx.body = {
-      reason: '필수값이 누락되었습니다.'
+      reason: '로그인에 필요한 필수 값들이 누락 되었습니다.'
     };
 
     return;
   }
 
   try {
-    const rows: any = await querySql(
-      `SELECT * FROM user WHERE email='${email}'`
+    const userRows = await querySql(
+      'SELECT uid, password, salt, userName, FROM user WHERE email = ?', [email]
     );
 
-    if (rows.length <= 0) {
-      ctx.status = 401;
+    if (userRows.length <= 0) {
+      ctx.status = 400;
       ctx.body = {
         reason: '가입하지 않은 아이디이거나 잘못된 비밀번호입니다.'
       }
@@ -257,12 +274,12 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
       return;
     }
 
-    const { emailAuth, password: hash, salt, uid, userName } = rows[0];
+    const { password: hash, salt, uid, userName } = userRows[0];
 
     const isVerifyHash = await checkHash(password, salt, hash);
 
     if (!isVerifyHash) {
-      ctx.status = 401;
+      ctx.status = 400;
       ctx.body = {
         reason: '가입하지 않은 아이디이거나 잘못된 비밀번호입니다.'
       }
@@ -270,8 +287,21 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
       return;      
     }
 
-    if (emailAuth === 'n') {
-      ctx.status = 401;
+    const userAuthRows = await querySql(
+      'SELECT auth FROM userAuth WHERE uid = ?', [userRows[0].uid]
+    );
+    
+    if (userAuthRows.length <= 0) {
+      ctx.status = 400;
+      ctx.body = {
+        reason: '가입하지 않은 아이디이거나 잘못된 비밀번호입니다.'
+      }
+
+      return;         
+    }
+
+    if (userAuthRows[0].auth !== 1) {
+      ctx.status = 400;
       ctx.body = {
         reason: '인증을 받지 않은 계정입니다. 이메일 인증을 먼저 완료해주세요.'
       }
@@ -291,6 +321,9 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
     };
   } catch (err) {
     ctx.status = 500;
+    ctx.body = {
+      reason: '로그인에 실패하였습니다.'
+    }
   }
 }
 
@@ -304,7 +337,6 @@ export const logout: Middleware = (ctx: ParameterizedContext<any, any>) => {
 export const checkStatus: Middleware = async (ctx: ParameterizedContext<any, any>) => {
   const token = getAccessTokenCookie(ctx);
 
-  // 토큰이 없으면 다음 작업을 진행한다.
   if (!token) {
     ctx.status = 401;
     
