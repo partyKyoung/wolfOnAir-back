@@ -262,7 +262,7 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
 
   try {
     const userRows = await querySql(
-      'SELECT uid, password, salt, userName, FROM user WHERE email = ?', [email]
+      'SELECT uid, password, salt, userName FROM user WHERE email = ?', [email]
     );
 
     if (userRows.length <= 0) {
@@ -320,6 +320,7 @@ export const login: Middleware = async (ctx: ParameterizedContext<any, any>) => 
       userName
     };
   } catch (err) {
+    console.log(err);
     ctx.status = 500;
     ctx.body = {
       reason: '로그인에 실패하였습니다.'
