@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Context } from 'koa';
 
-import secret from '../config/jwtConfig';
+import secret from '../config/jwt';
 
 export const generateToken = (uid: number, userName: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -17,7 +17,7 @@ export const generateToken = (uid: number, userName: string): Promise<string> =>
         reject(err);
       }
 
-      resolve(token);
+      resolve(token as string);
     })
   });
 }
